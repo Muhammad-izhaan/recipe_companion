@@ -11,6 +11,17 @@ const io = socketIo(server);
 // Serve static files
 app.use(express.static('public'));
 
+// Add a route handler for the root path
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+// Add error handling
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
 // Groq AI setup
 const groq = new Groq({ 
     apiKey: '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', 
