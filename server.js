@@ -2,13 +2,31 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const Groq = require('groq-sdk');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+
+// Configure Socket.IO with CORS for Vercel
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 // Serve static files
 app.use(express.static('public'));
+
+// Add a route handler for the root path
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Add a health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
 
 // Groq AI setup with public API key
 const groq = new Groq({ 
@@ -88,6 +106,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
