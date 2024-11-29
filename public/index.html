@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Companion</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1A365D;
+            --secondary-color: #2C5282;
+            --accent-color: #3182CE;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            color: #F7FAFC;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+        }
+
+        .recipe-btn {
+            transition: all 0.3s ease;
+            background: rgba(49, 130, 206, 0.2);
+            border: 1px solid rgba(49, 130, 206, 0.3);
+        }
+
+        .recipe-btn:hover {
+            transform: scale(1.05);
+            background: rgba(49, 130, 206, 0.3);
+        }
+
+        /* Improved Loading Animation */
+        @keyframes loadingPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .loading-dots span {
+            display: inline-block;
+            animation: loadingPulse 1.4s infinite;
+            animation-delay: calc(0.2s * var(--i));
+        }
+
+        /* Input Visibility */
+        #recipeInput {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.2);
+            caret-color: #FFFFFF;
+        }
+
+        #recipeInput::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        #recipeInput:focus {
+            outline: 2px solid rgba(49, 130, 206, 0.7);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .loading-spinner {
+            border-top-color: var(--accent-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Recipe Styling */
+        .recipe-title {
+            font-family: 'Inter', sans-serif;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: -0.5px;
+        }
+
+        .recipe-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .recipe-container h3 {
+            color: #60A5FA;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        .recipe-container ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0.5rem 0;
+        }
+
+        .recipe-container ul li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .recipe-container ul li:before {
+            content: "•";
+            color: #60A5FA;
+            position: absolute;
+            left: 0;
+        }
+
+        .recipe-container ol {
+            list-style-type: none;
+            counter-reset: step-counter;
+            padding: 0;
+            margin: 0.5rem 0;
+        }
+
+        .recipe-container ol li {
+            counter-increment: step-counter;
+            margin-bottom: 0.75rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .recipe-container ol li:before {
+            content: counter(step-counter);
+            color: #60A5FA;
+            font-weight: 600;
+            position: absolute;
+            left: 0;
+            width: 1.5rem;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto max-w-md">
+        <div class="glass-card p-8 rounded-2xl shadow-2xl">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold mb-2 text-white">Recipe Companion</h1>
+                <p class="text-white/70">Your Personal Recipe Guide</p>
+            </div>
+
+            <div class="mb-6">
+                <input 
+                    id="recipeInput" 
+                    class="w-full p-3 rounded-lg text-white focus:outline-none"
+                    placeholder="Enter recipe name..."
+                />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button data-recipe="Butter Chicken" class="recipe-btn text-white p-3 rounded-lg">
+                    Butter Chicken
+                </button>
+                <button data-recipe="Masala Dosa" class="recipe-btn text-white p-3 rounded-lg">
+                    Masala Dosa
+                </button>
+                <button data-recipe="Biryani" class="recipe-btn text-white p-3 rounded-lg">
+                    Biryani
+                </button>
+                <button data-recipe="Paneer Tikka" class="recipe-btn text-white p-3 rounded-lg">
+                    Paneer Tikka
+                </button>
+            </div>
+
+            <button 
+                id="generateBtn"
+                class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+                Generate Recipe
+            </button>
+        </div>
+        <footer class="mt-6 text-center text-white/70 text-sm">
+            Developed and designed with ❤️ by Izhann
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div 
+        id="loadingOverlay" 
+        class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden"
+    >
+        <div class="text-center">
+            <div class="loading-dots text-white text-4xl">
+                <span style="--i:1">.</span>
+                <span style="--i:2">.</span>
+                <span style="--i:3">.</span>
+            </div>
+            <p class="text-white/80 mt-4">Recipe generate ho raha hai...</p>
+        </div>
+    </div>
+
+    <!-- Full Screen Recipe View -->
+    <div 
+        id="fullScreenRecipe" 
+        class="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 to-indigo-900 p-6 overflow-y-auto hidden"
+    >
+        <div class="container mx-auto max-w-3xl">
+            <button 
+                id="closeFullScreen" 
+                class="absolute top-6 right-6 text-white text-3xl hover:text-blue-300 transition"
+            >
+                &times;
+            </button>
+            <div 
+                id="fullScreenRecipeContent" 
+                class="text-white space-y-6 mt-12"
+            >
+                <!-- Recipe content will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const recipeInput = document.getElementById('recipeInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const fullScreenRecipe = document.getElementById('fullScreenRecipe');
+        const fullScreenRecipeContent = document.getElementById('fullScreenRecipeContent');
+        const closeFullScreen = document.getElementById('closeFullScreen');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Popular recipe buttons
+        document.querySelectorAll('.recipe-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                recipeInput.value = btn.dataset.recipe;
+                generateBtn.click();
+            });
+        });
+
+        generateBtn.addEventListener('click', () => {
+            const recipe = recipeInput.value.trim();
+            if (recipe) {
+                // Show loading overlay
+                loadingOverlay.classList.remove('hidden');
+                
+                // Emit recipe request
+                socket.emit('recipe_request', { recipe });
+            }
+        });
+
+        socket.on('recipe_response', (data) => {
+            // Hide loading overlay
+            loadingOverlay.classList.add('hidden');
+
+            fullScreenRecipeContent.innerHTML = `
+                <h2 class="recipe-title text-4xl font-bold text-center mb-8 text-white">${recipeInput.value}</h2>
+                <div class="recipe-container">
+                    <div class="prose prose-invert">
+                        ${data.recipe}
+                    </div>
+                </div>
+            `;
+            
+            fullScreenRecipe.classList.remove('hidden');
+        });
+
+        socket.on('recipe_error', (data) => {
+            // Hide loading overlay
+            loadingOverlay.classList.add('hidden');
+
+            fullScreenRecipeContent.innerHTML = `
+                <div class="text-red-300 text-center text-2xl">
+                    ${data.message}
+                </div>
+            `;
+            
+            fullScreenRecipe.classList.remove('hidden');
+        });
+
+        closeFullScreen.addEventListener('click', () => {
+            fullScreenRecipe.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
