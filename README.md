@@ -5,10 +5,10 @@ A modern web application that generates detailed recipes in Hinglish (Hindi + En
 ## Screenshots
 
 ### Main Interface
-![Main Interface](./screenshots/main.png)
+![Main Interface](./image1.png)
 
 ### Recipe Generation
-![Recipe Generation](./screenshots/recipe.png)
+![Recipe Generation](./image.png)
 
 ## Features
 
